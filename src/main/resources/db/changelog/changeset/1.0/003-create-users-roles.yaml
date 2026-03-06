@@ -34,7 +34,7 @@ databaseChangeLog:
         - addForeignKeyConstraint:
             baseTableName: users_roles
             baseColumnNames: role_id
-            referencedTableName: role
+            referencedTableName: roles
             referencedColumnNames: id
             constraintName: fk_users_roles_role
             onDelete: CASCADE

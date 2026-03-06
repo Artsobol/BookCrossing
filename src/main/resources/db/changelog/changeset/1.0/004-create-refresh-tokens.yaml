@@ -1,0 +1,125 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-create-refresh-tokens
+      author: artsobol
+
+      changes:
+        - createTable:
+            tableName: refresh_tokens
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_refresh_tokens
+
+              - column:
+                  name: token_hash
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: expires_at
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: revoked_at
+                  type: timestamptz
+
+              - column:
+                  name: revoked_reason
+                  type: varchar(32)
+
+              - column:
+                  name: replace_by_id
+                  type: bigint
+
+              - column:
+                  name: session_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: ip_address
+                  type: varchar(45)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: user_agent
+                  type: varchar(1024)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: device_name
+                  type: varchar(255)
+
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: last_used_at
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+
+        - addUniqueConstraint:
+            tableName: refresh_tokens
+            columnNames: token_hash
+            constraintName: uq_refresh_tokens_token_hash
+
+        - addUniqueConstraint:
+            tableName: refresh_tokens
+            columnNames: replace_by_id
+            constraintName: uq_refresh_tokens_replace_by_id
+
+        - addForeignKeyConstraint:
+            baseTableName: refresh_tokens
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_refresh_token_user_id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: refresh_tokens
+            baseColumnNames: replace_by_id
+            referencedTableName: refresh_tokens
+            referencedColumnNames: id
+            constraintName: fk_refresh_tokens_replace_by_id
+
+        - createIndex:
+            tableName: refresh_tokens
+            indexName: idx_refresh_token_user_id
+            columns:
+              - column:
+                  name: user_id
+
+        - createIndex:
+            tableName: refresh_tokens
+            indexName: idx_refresh_token_session_id
+            columns:
+              - column:
+                  name: session_id
+
+        - createIndex:
+            tableName: refresh_tokens
+            indexName: idx_refresh_token_token_hash
+            columns:
+              - column:
+                  name: token_hash

@@ -1,12 +1,12 @@
 package io.github.artsobol.bookcrossing.feature.auth.web;
 
-import io.github.artsobol.bookcrossing.infrastructure.web.useragent.DeviceInfo;
-import io.github.artsobol.bookcrossing.infrastructure.web.useragent.UserAgentService;
+import io.github.artsobol.bookcrossing.feature.auth.support.DeviceInfo;
+import io.github.artsobol.bookcrossing.feature.auth.support.UserAgentService;
 import io.github.artsobol.bookcrossing.feature.auth.dto.request.RegistrationRequest;
 import io.github.artsobol.bookcrossing.feature.auth.dto.request.SessionMetadata;
 import io.github.artsobol.bookcrossing.feature.auth.dto.response.AuthResponse;
 import io.github.artsobol.bookcrossing.feature.auth.service.RegistrationService;
-import io.github.artsobol.bookcrossing.config.CookieProperties;
+import io.github.artsobol.bookcrossing.config.properties.security.CookieProperties;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

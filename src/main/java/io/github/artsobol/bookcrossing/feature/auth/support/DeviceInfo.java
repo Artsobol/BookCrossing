@@ -1,4 +1,4 @@
-package io.github.artsobol.bookcrossing.infrastructure.web.useragent;
+package io.github.artsobol.bookcrossing.feature.auth.support;
 
 public record DeviceInfo(
         String browser,

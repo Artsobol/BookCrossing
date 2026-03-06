@@ -1,4 +1,4 @@
-package io.github.artsobol.bookcrossing.infrastructure.web.useragent;
+package io.github.artsobol.bookcrossing.feature.auth.support;
 
 import nl.basjes.parse.useragent.UserAgentAnalyzer;
 import org.springframework.context.annotation.Bean;

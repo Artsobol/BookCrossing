@@ -1,6 +1,6 @@
 package io.github.artsobol.bookcrossing.feature.auth.web;
 
-import io.github.artsobol.bookcrossing.config.CookieProperties;
+import io.github.artsobol.bookcrossing.config.properties.security.CookieProperties;
 import io.github.artsobol.bookcrossing.feature.auth.dto.response.AuthResponse;
 import io.github.artsobol.bookcrossing.feature.auth.service.RefreshService;
 import io.github.artsobol.bookcrossing.feature.refreshtoken.dto.request.RotateRefreshTokenRequest;

@@ -1,6 +1,6 @@
 package io.github.artsobol.bookcrossing.security.jwt;
 
-import io.github.artsobol.bookcrossing.config.JwtProperties;
+import io.github.artsobol.bookcrossing.config.properties.security.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;

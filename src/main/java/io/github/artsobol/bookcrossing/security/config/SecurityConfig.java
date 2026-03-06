@@ -1,6 +1,6 @@
 package io.github.artsobol.bookcrossing.security.config;
 
-import io.github.artsobol.bookcrossing.config.JwtProperties;
+import io.github.artsobol.bookcrossing.config.properties.security.JwtProperties;
 import io.github.artsobol.bookcrossing.feature.user.repository.UserRepository;
 import io.github.artsobol.bookcrossing.security.jwt.JwtAuthenticationFilter;
 import io.github.artsobol.bookcrossing.security.jwt.JwtTokenProvider;

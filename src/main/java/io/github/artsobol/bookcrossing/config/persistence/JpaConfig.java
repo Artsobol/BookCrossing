@@ -1,4 +1,4 @@
-package io.github.artsobol.bookcrossing.config;
+package io.github.artsobol.bookcrossing.config.persistence;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;

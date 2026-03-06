@@ -15,7 +15,7 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public Role findByName(String name) {
         return roleRepository.findByName(name).orElseThrow(
-                () -> new NotFoundException("role.not.found")
+                () -> new NotFoundException("role.not.found", name)
         );
     }
 }

@@ -1,4 +1,4 @@
-package io.github.artsobol.bookcrossing.config;
+package io.github.artsobol.bookcrossing.config.properties.security;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

@@ -6,7 +6,7 @@ import io.github.artsobol.bookcrossing.feature.refreshtoken.dto.request.RotateRe
 import io.github.artsobol.bookcrossing.feature.refreshtoken.dto.response.CreatedRefreshToken;
 import io.github.artsobol.bookcrossing.feature.refreshtoken.dto.response.RefreshTokenRotationResult;
 import io.github.artsobol.bookcrossing.feature.refreshtoken.entity.RefreshToken;
-import io.github.artsobol.bookcrossing.config.SessionProperties;
+import io.github.artsobol.bookcrossing.config.properties.security.SessionProperties;
 import io.github.artsobol.bookcrossing.feature.refreshtoken.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;

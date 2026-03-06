@@ -3,7 +3,7 @@ package io.github.artsobol.bookcrossing.feature.refreshtoken.service;
 import io.github.artsobol.bookcrossing.feature.refreshtoken.dto.request.CreateRefreshTokenRequest;
 import io.github.artsobol.bookcrossing.feature.refreshtoken.dto.response.CreatedRefreshToken;
 import io.github.artsobol.bookcrossing.feature.refreshtoken.entity.RefreshToken;
-import io.github.artsobol.bookcrossing.config.RefreshTokenProperties;
+import io.github.artsobol.bookcrossing.config.properties.security.RefreshTokenProperties;
 import io.github.artsobol.bookcrossing.utils.TokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -1,9 +1,11 @@
 package io.github.artsobol.bookcrossing.exception.base;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 import java.util.Map;
 
+@Getter
 public class BaseException extends RuntimeException {
 
     private final String errorCode;

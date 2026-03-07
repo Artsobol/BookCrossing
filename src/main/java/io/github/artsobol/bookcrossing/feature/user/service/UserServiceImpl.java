@@ -11,10 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, UserFinder {
 
     private final RoleService roleService;
     private final UserRepository userRepository;
@@ -40,6 +41,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByUsername(username).orElseThrow(
                 () -> new NotFoundException("user.not.found")
         );
+    }
+
+    @Override
+    public User findById(UUID userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("user.not.found"));
     }
 
     private void ensureUniqueEmail(String email) {

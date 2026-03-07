@@ -1,0 +1,59 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-craete-profiles
+      author: artsobol
+
+      changes:
+        - createTable:
+            tableName: profiles
+            columns:
+
+              - column:
+                  name: id
+                  type: bigserial
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_profiles
+
+              - column:
+                  name: first_name
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: last_name
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: bio
+                  type: text
+
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uq_profiles_user_id
+
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: profiles
+            baseColumnNames: user_id
+            constraintName: fk_profiles_user_id
+            referencedTableName: users
+            referencedColumnNames: id

@@ -59,6 +59,44 @@ Request:
 
 Response `201 Created`: формат как у `/api/auth/register`, refresh token ротируется.
 
+
+## Profiles API
+
+Все endpoints профилей требуют `Authorization: Bearer <access-token>`.
+
+- `GET /api/profiles/me` - получить профиль текущего пользователя
+- `GET /api/profiles/{username}` - получить профиль по username
+- `POST /api/profiles` - создать профиль
+- `PATCH /api/profiles` - частично обновить профиль
+
+Пример `POST /api/profiles`:
+
+```json
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "bio": "I like exchanging books"
+}
+```
+
+Пример ответа:
+
+```json
+{
+  "id": 1,
+  "firstName": "John",
+  "lastName": "Doe",
+  "bio": "I like exchanging books",
+  "user": {
+    "id": "uuid",
+    "username": "john",
+    "roles": [
+      { "id": 1, "name": "USER" }
+    ]
+  }
+}
+```
+
 ## Ошибки
 
 Формат ошибки:

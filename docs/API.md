@@ -124,3 +124,18 @@ Response `201 Created`: формат как у `/api/auth/register`, refresh tok
   ]
 }
 ```
+
+## Логирование и трассировка
+
+- Конфигурация логирования: `src/main/resources/logback-spring.xml`
+- Профили: `local`, `dev`, `default`, `prod`
+- Корреляция запросов:
+    - `X-Request-Id` из входящего запроса или auto-generated UUID
+    - поля MDC: `requestId`, `userId`
+- Security-ошибки:
+    - `401` формируется в `JwtAuthenticationEntryPoint`
+    - `403` формируется в `JwtAccessDeniedHandler`
+    - ответы сериализуются как JSON (`application/json`, UTF-8)
+- Общая стратегия уровней:
+    - `WARN` для ожидаемых бизнес/валидационных ошибок
+    - `ERROR` для неожиданных исключений с stack trace

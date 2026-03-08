@@ -4,6 +4,25 @@ All notable changes to this project are documented in this file.
 
 The format is based on Keep a Changelog and this project follows Semantic Versioning.
 
+## [0.2.1] - 2026-03-08
+
+### Added
+- Centralized logging configuration in `logback-spring.xml` for `local`, `dev`, `default`, and `prod` profiles
+- Request correlation via `MdcFilter` with `X-Request-Id` -> `MDC requestId`
+- `userId` enrichment in MDC after successful JWT authentication
+- Structured security logs for unauthorized (`401`) and access denied (`403`) scenarios
+
+### Changed
+- Security error responses for `AuthenticationEntryPoint` and `AccessDeniedHandler` are now written as JSON with UTF-8 encoding
+- `JwtAuthenticationFilter` behavior updated for invalid JWT: no business exception leakage from filter layer, security context is cleared, request continues through filter chain
+- Logging levels and messages in security filter/advice refined to reduce noise and avoid sensitive header value output
+- `CommonControllerAdvice` logging strategy aligned to severity (`WARN` for expected business/validation failures, `ERROR` for unexpected failures with exception stack trace)
+
+### Fixed
+- Fixed malformed/unsafe security filter flow where request processing could stop without continuing chain in specific branches
+- Fixed response handling guard in security handlers via `response.isCommitted()` checks
+- Fixed `logback-spring.xml` file appender pattern and default `LOG_PATH` fallback usage
+
 ## [0.2.0] - 2026-03-07
 
 ### Added

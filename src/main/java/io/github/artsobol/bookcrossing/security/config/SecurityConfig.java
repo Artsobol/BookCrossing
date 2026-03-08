@@ -2,6 +2,9 @@ package io.github.artsobol.bookcrossing.security.config;
 
 import io.github.artsobol.bookcrossing.config.properties.security.JwtProperties;
 import io.github.artsobol.bookcrossing.feature.user.repository.UserRepository;
+import io.github.artsobol.bookcrossing.infrastructure.localization.MessageService;
+import io.github.artsobol.bookcrossing.security.jwt.JwtAccessDeniedHandler;
+import io.github.artsobol.bookcrossing.security.jwt.JwtAuthenticationEntryPoint;
 import io.github.artsobol.bookcrossing.security.jwt.JwtAuthenticationFilter;
 import io.github.artsobol.bookcrossing.security.jwt.JwtTokenProvider;
 import io.github.artsobol.bookcrossing.security.user.UserDetailsServiceImpl;
@@ -15,8 +18,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import tools.jackson.databind.ObjectMapper;
 
 @Configuration
 @EnableWebSecurity
@@ -24,7 +30,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter) {
+    SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            JwtAuthenticationFilter jwtFilter,
+            AuthenticationEntryPoint authenticationEntryPoint,
+            AccessDeniedHandler accessDeniedHandler
+            ) {
         http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth.requestMatchers(
@@ -35,7 +46,9 @@ public class SecurityConfig {
                         .permitAll()
                         .anyRequest()
                         .authenticated())
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(eh -> eh.authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler));
 
         return http.build();
     }
@@ -48,6 +61,22 @@ public class SecurityConfig {
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider) {
         return new JwtAuthenticationFilter(jwtTokenProvider);
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint(
+            MessageService messageService,
+            ObjectMapper objectMapper
+    ) {
+        return new JwtAuthenticationEntryPoint(messageService, objectMapper);
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler(
+            MessageService messageService,
+            ObjectMapper objectMapper
+    ) {
+        return new JwtAccessDeniedHandler(messageService, objectMapper);
     }
 
     @Bean

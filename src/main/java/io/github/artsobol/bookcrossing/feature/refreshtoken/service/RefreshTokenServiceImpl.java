@@ -9,6 +9,7 @@ import io.github.artsobol.bookcrossing.feature.refreshtoken.entity.RefreshToken;
 import io.github.artsobol.bookcrossing.config.properties.security.SessionProperties;
 import io.github.artsobol.bookcrossing.feature.refreshtoken.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RefreshTokenServiceImpl implements RefreshTokenService {
@@ -27,17 +29,21 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     @Transactional
     public String createRefreshToken(CreateRefreshTokenRequest request) {
+        log.info("Start creating refresh token for user: {}", request.user().getUsername());
         UUID id = request.user().getId();
         long activeSessions = refreshTokenRepository.countActiveSessions(id);
         ensureHasSessions(id, activeSessions);
         CreatedRefreshToken encoded = encoder.create(request);
         refreshTokenRepository.save(encoded.refreshToken());
+
+        log.info("Refresh token created for user: {}", request.user().getUsername());
         return encoded.rawToken();
     }
 
     @Override
     @Transactional
     public RefreshTokenRotationResult rotate(RotateRefreshTokenRequest request) {
+        log.info("Start rotating refresh token");
         String hash = encoder.hash(request.rawRefreshToken());
         RefreshToken token = refreshTokenRepository.findByTokenHash(hash)
                 .orElseThrow(() -> new AuthenticationException("auth.refresh.invalid"));
@@ -68,11 +74,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         token.setReplaceBy(newToken);
         newToken.setReplacedToken(token);
 
+        log.info("Refresh token rotated");
         return new RefreshTokenRotationResult(token.getUser(), encoded.rawToken());
     }
 
     private void ensureHasSessions(UUID userId, long sessionsCount) {
         if (sessionsCount >= properties.maxSessions()) {
+            log.info("User: {} has too many active sessions={}, revoking oldest one", userId, sessionsCount);
             RefreshToken token = refreshTokenRepository.findOldestActiveSessions(userId, PageRequest.of(0, 1))
                     .getFirst();
             refreshTokenRepository.revokeSessionByUserIdAndSessionId(userId, token.getSessionId());

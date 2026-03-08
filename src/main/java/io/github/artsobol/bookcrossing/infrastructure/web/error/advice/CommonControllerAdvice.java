@@ -7,6 +7,7 @@ import io.github.artsobol.bookcrossing.infrastructure.web.error.dto.ValidationEr
 import io.github.artsobol.bookcrossing.infrastructure.web.error.dto.ValidationFieldError;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.Instant;
 import java.util.List;
 
+@Slf4j
 @RestControllerAdvice
 @RequiredArgsConstructor
 public class CommonControllerAdvice {
@@ -46,6 +48,7 @@ public class CommonControllerAdvice {
                 request.getRequestURI(),
                 errors
         );
+        log.warn("Validation error for request URI: {}. Errors: {}", request.getRequestURI(), errors);
 
         return ResponseEntity.status(status).body(response);
     }
@@ -56,16 +59,31 @@ public class CommonControllerAdvice {
         String message = messageService.createMessage(ex.getMessageKey(), ex.getMessageArgs());
 
         ErrorResponse response = getErrorResponse(request, status, ex.getErrorCode(), message);
+        log.warn(
+                "Request failed: method={}, URI={}, status={}, error code={}",
+                request.getMethod(),
+                request.getRequestURI(),
+                status.value(),
+                ex.getErrorCode()
+        );
 
         return ResponseEntity.status(status).body(response);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest request) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         String message = messageService.createMessage("unexpected.error", null);
 
         ErrorResponse response = getErrorResponse(request, status, "INTERNAL_SERVER_ERROR", message);
+        log.error(
+                "Unexpected error: method={}, URI={}, status={}, errorCode={}",
+                request.getMethod(),
+                request.getRequestURI(),
+                500,
+                "INTERNAL_SERVER_ERROR",
+                ex
+        );
 
         return ResponseEntity.status(status).body(response);
     }

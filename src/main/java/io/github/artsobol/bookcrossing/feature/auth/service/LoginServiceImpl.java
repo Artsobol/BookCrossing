@@ -8,11 +8,13 @@ import io.github.artsobol.bookcrossing.feature.refreshtoken.dto.request.CreateRe
 import io.github.artsobol.bookcrossing.feature.user.entity.User;
 import io.github.artsobol.bookcrossing.feature.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LoginServiceImpl implements LoginService {
@@ -23,6 +25,7 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public AuthResponse login(LoginRequest request, SessionMetadata meta) {
+        log.info("Received login request for username: {}", request.username());
         User user = userService.findByUsername(request.username());
         ensureCredentialsValid(request.password(), user.getPasswordHash());
 
@@ -31,7 +34,10 @@ public class LoginServiceImpl implements LoginService {
         CreateRefreshTokenRequest refreshTokenRequest = new CreateRefreshTokenRequest(
             user, sessionId, meta.ipAddress(), meta.userAgent(), meta.deviceName()
         );
-        return authResponseFactory.create(refreshTokenRequest);
+        AuthResponse response = authResponseFactory.create(refreshTokenRequest);
+
+        log.info("Login finished for username: {}", request.username());
+        return response;
     }
 
     private void ensureCredentialsValid(String password, String confirmPassword) {

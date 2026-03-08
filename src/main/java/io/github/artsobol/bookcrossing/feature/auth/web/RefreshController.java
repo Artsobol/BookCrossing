@@ -6,6 +6,7 @@ import io.github.artsobol.bookcrossing.feature.auth.service.RefreshService;
 import io.github.artsobol.bookcrossing.feature.refreshtoken.dto.request.RotateRefreshTokenRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth/refresh")
 @RequiredArgsConstructor
@@ -30,9 +32,11 @@ public class RefreshController {
     ) {
         String userAgent = servletRequest.getHeader(HttpHeaders.USER_AGENT);
         String ipAddress = servletRequest.getRemoteAddr();
+        log.info("Received refresh request from IP: {} and device: {}", ipAddress, userAgent);
 
         RotateRefreshTokenRequest request = new RotateRefreshTokenRequest(refreshToken, ipAddress, userAgent);
         AuthResponse authResponse = service.refresh(request);
+        log.info("Refresh request successfully finished");
 
         return getResponse(getResponseCookie(authResponse), authResponse);
     }

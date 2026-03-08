@@ -10,6 +10,7 @@ import io.github.artsobol.bookcrossing.config.properties.security.CookieProperti
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth/register")
 @RequiredArgsConstructor
@@ -36,10 +38,18 @@ public class RegistrationController {
         String userAgent = servletRequest.getHeader(HttpHeaders.USER_AGENT);
         String ipAddress = servletRequest.getRemoteAddr();
         DeviceInfo deviceInfo = getDeviceInfo(userAgent);
+        log.info(
+                "Received registration request for user: {} from IP: {} and device: {}",
+                registrationRequest.username(),
+                ipAddress,
+                deviceInfo.device()
+        );
+
         AuthResponse authResponse = registrationService.register(
                 registrationRequest,
                 getSessionMetadata(ipAddress, userAgent, deviceInfo)
         );
+        log.info("Registration finished for user: {}", registrationRequest.username());
 
         return getResponse(getResponseCookie(authResponse), authResponse);
     }

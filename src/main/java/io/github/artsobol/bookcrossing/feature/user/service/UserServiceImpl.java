@@ -7,12 +7,14 @@ import io.github.artsobol.bookcrossing.feature.user.dto.request.CreateUserReques
 import io.github.artsobol.bookcrossing.feature.user.entity.User;
 import io.github.artsobol.bookcrossing.feature.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService, UserFinder {
@@ -23,6 +25,7 @@ public class UserServiceImpl implements UserService, UserFinder {
     @Override
     @Transactional
     public User createUser(CreateUserRequest request) {
+        log.info("Creating user with username: {}", request.username());
         ensureUniqueUsername(request.username());
         ensureUniqueEmail(request.email());
 
@@ -33,11 +36,14 @@ public class UserServiceImpl implements UserService, UserFinder {
                 .roles(Set.of(roleService.findByName("USER")))
                 .build();
         userRepository.save(user);
+
+        log.info("User created with username: {}", user.getUsername());
         return user;
     }
 
     @Override
     public User findByUsername(String username) {
+        log.debug("Finding user by username: {}", username);
         return userRepository.findByUsername(username).orElseThrow(
                 () -> new NotFoundException("user.not.found")
         );
@@ -45,16 +51,19 @@ public class UserServiceImpl implements UserService, UserFinder {
 
     @Override
     public User findById(UUID userId) {
+        log.debug("Finding user by id: {}", userId);
         return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("user.not.found"));
     }
 
     private void ensureUniqueEmail(String email) {
+        log.debug("Checking if email: {} is unique", email);
         if (userRepository.existsByEmail(email)) {
             throw new ConflictException("user.email.exists");
         }
     }
 
     private void ensureUniqueUsername(String username) {
+        log.debug("Checking if username: {} is unique", username);
         if (userRepository.existsByUsername(username)) {
             throw new ConflictException("user.username.exists");
         }

@@ -5,9 +5,11 @@ import io.github.artsobol.bookcrossing.feature.refreshtoken.dto.request.RotateRe
 import io.github.artsobol.bookcrossing.feature.refreshtoken.dto.response.RefreshTokenRotationResult;
 import io.github.artsobol.bookcrossing.feature.refreshtoken.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RefreshServiceImpl implements RefreshService {
@@ -18,6 +20,7 @@ public class RefreshServiceImpl implements RefreshService {
     @Override
     @Transactional
     public AuthResponse refresh(RotateRefreshTokenRequest request) {
+        log.info("Received request to refresh token");
         RefreshTokenRotationResult rotated = refreshTokenService.rotate(request);
         return authResponseFactory.createWithRefresh(rotated.user(), rotated.rawRefreshToken());
     }

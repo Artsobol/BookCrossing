@@ -5,15 +5,20 @@ import io.github.artsobol.bookcrossing.infrastructure.web.error.dto.ErrorRespons
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
@@ -26,7 +31,28 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
             HttpServletResponse response,
             @NonNull AccessDeniedException accessDeniedException
     ) throws IOException {
+        if (response.isCommitted()) {
+            return;
+        }
+
         String message = messageService.createMessage("auth.access.denied", null);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication != null ? authentication.getName() : "anonymous";
+        String role = authentication != null ? authentication
+                .getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst()
+                .orElse("Unknown") : "Unknown";
+        log.warn(
+                "Access denied: method={}, URI={}, user={}, role={}, IP={}",
+                request.getMethod(),
+                request.getRequestURI(),
+                username,
+                role,
+                request.getRemoteAddr()
+        );
+
 
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 

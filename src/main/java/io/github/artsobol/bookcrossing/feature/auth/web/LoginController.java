@@ -1,15 +1,16 @@
 package io.github.artsobol.bookcrossing.feature.auth.web;
 
-import io.github.artsobol.bookcrossing.feature.auth.support.DeviceInfo;
-import io.github.artsobol.bookcrossing.feature.auth.support.UserAgentService;
+import io.github.artsobol.bookcrossing.config.properties.security.CookieProperties;
 import io.github.artsobol.bookcrossing.feature.auth.dto.request.LoginRequest;
 import io.github.artsobol.bookcrossing.feature.auth.dto.request.SessionMetadata;
 import io.github.artsobol.bookcrossing.feature.auth.dto.response.AuthResponse;
 import io.github.artsobol.bookcrossing.feature.auth.service.LoginService;
-import io.github.artsobol.bookcrossing.config.properties.security.CookieProperties;
+import io.github.artsobol.bookcrossing.feature.auth.support.DeviceInfo;
+import io.github.artsobol.bookcrossing.feature.auth.support.UserAgentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth/login")
 @RequiredArgsConstructor
@@ -36,11 +38,19 @@ public class LoginController {
         String userAgent = servletRequest.getHeader(HttpHeaders.USER_AGENT);
         String ipAddress = servletRequest.getRemoteAddr();
         DeviceInfo deviceInfo = getDeviceInfo(userAgent);
+        log.info(
+                "Received login request for user: {} from IP: {} and device: {}",
+                loginRequest.username(),
+                ipAddress,
+                deviceInfo.device()
+        );
+
         AuthResponse authResponse = service.login(
                 loginRequest,
                 getSessionMetadata(ipAddress, userAgent, deviceInfo)
         );
 
+        log.info("Login finished for user: {}", loginRequest.username());
         return getResponse(getResponseCookie(authResponse), authResponse);
     }
 

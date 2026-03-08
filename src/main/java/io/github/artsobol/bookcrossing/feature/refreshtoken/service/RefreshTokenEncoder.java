@@ -6,6 +6,7 @@ import io.github.artsobol.bookcrossing.feature.refreshtoken.entity.RefreshToken;
 import io.github.artsobol.bookcrossing.config.properties.security.RefreshTokenProperties;
 import io.github.artsobol.bookcrossing.utils.TokenUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;

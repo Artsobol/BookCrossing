@@ -31,3 +31,14 @@ databaseChangeLog:
               INSERT INTO roles (name)
               VALUES ('USER')
               ON CONFLICT (name) DO NOTHING;
+
+  - changeSet:
+      id: 003-insert-roles-admin
+      author: artsobol
+
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO roles (name)
+              VALUES ('ADMIN')
+              ON CONFLICT (name) DO NOTHING;

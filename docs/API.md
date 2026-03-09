@@ -97,6 +97,46 @@ Response `201 Created`: формат как у `/api/auth/register`, refresh tok
 }
 ```
 
+## Genres API
+
+Все endpoints жанров требуют `Authorization: Bearer <access-token>`.
+
+- `GET /api/genres` - список жанров (доступен аутентифицированным пользователям)
+- `GET /api/genres/{slug}` - получить жанр по slug (роль `USER` или выше)
+- `POST /api/genres` - создать жанр (роль `ADMIN`)
+- `PATCH /api/genres/{slug}` - обновить жанр (роль `ADMIN`)
+
+Пример `POST /api/genres`:
+
+```json
+{
+  "title": "Science Fiction",
+  "description": "Books about future, science and technology",
+  "slug": "science-fiction"
+}
+```
+
+Пример `PATCH /api/genres/{slug}`:
+
+```json
+{
+  "title": "Sci-Fi",
+  "description": "Updated description",
+  "slug": "sci-fi"
+}
+```
+
+Пример ответа:
+
+```json
+{
+  "id": 1,
+  "title": "Sci-Fi",
+  "description": "Updated description",
+  "slug": "sci-fi"
+}
+```
+
 ## Ошибки
 
 Формат ошибки:

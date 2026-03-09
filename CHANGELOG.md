@@ -4,6 +4,21 @@ All notable changes to this project are documented in this file.
 
 The format is based on Keep a Changelog and this project follows Semantic Versioning.
 
+## [0.3.0] - 2026-03-09
+
+### Added
+- Genres feature: entity, repository, service, controller, DTOs and mapper
+- Genres API endpoints: list, get by slug, create, update
+- Liquibase migration for `genres` table with foreign keys `created_by` and `updated_by` to `users.id`
+
+### Changed
+- Project version updated to `0.3.0`
+- `Genre` auditing fields now use `UUID` (`createdBy`, `updatedBy`) aligned with `AuditorAware<UUID>`
+
+### Fixed
+- Fixed `ClassCastException` in `SecurityAuditorAware` by safely handling non-`UserPrincipal` principals (for example, anonymous principal)
+- Fixed auditing type mismatch when persisting `Genre` (`UUID` auditor value can now be written without casting to `User`)
+
 ## [0.2.1] - 2026-03-08
 
 ### Added

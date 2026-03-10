@@ -12,10 +12,12 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -49,6 +51,40 @@ public class CommonControllerAdvice {
                 errors
         );
         log.warn("Validation error for request URI: {}. Errors: {}", request.getRequestURI(), errors);
+
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ValidationErrorResponse> handleMissingServletRequestParameterException(
+            MissingServletRequestParameterException ex,
+            HttpServletRequest request
+    ) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        List<String> missingParams = Arrays.asList(ex.getParameterName().split(","));
+        List<ValidationFieldError> errors = missingParams.stream()
+                .map(param -> {
+                    String localizedMessage = messageService.createMessage("parameter.missing", new Object[]{param});
+                    return new ValidationFieldError(param, localizedMessage);
+                }).toList();
+
+        String message = messageService.createMessage("parameter.missing.base", null);
+
+        ValidationErrorResponse response = new ValidationErrorResponse(
+                Instant.now(),
+                status.value(),
+                status.getReasonPhrase(),
+                message,
+                request.getRequestURI(),
+                errors
+        );
+
+        log.warn(
+                "Missing request parameters for URI: {}. Missing parameters: {}",
+                request.getRequestURI(),
+                missingParams
+        );
 
         return ResponseEntity.status(status).body(response);
     }

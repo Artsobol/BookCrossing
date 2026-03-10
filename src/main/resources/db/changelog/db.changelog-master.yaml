@@ -11,3 +11,5 @@ databaseChangeLog:
       file: db/changelog/changeset/1.0/005-create-profiles.yaml
   - include:
       file: db/changelog/changeset/1.0/006-create-genres.yaml
+  - include:
+      file: db/changelog/changeset/1.0/007-create-authors.yaml

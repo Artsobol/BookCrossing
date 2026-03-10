@@ -4,6 +4,15 @@ All notable changes to this project are documented in this file.
 
 The format is based on Keep a Changelog and this project follows Semantic Versioning.
 
+## [0.4.0] - 2026-03-10
+
+### Added
+
+- Authors feature: entity, repository, service, controller, DTOs and mapper
+- Authors API endpoints: list, get by slug, get by name, create, update
+- Liquibase migration for `authors` table with foreign keys `created_by` and `updated_by` to `users.id`
+- Exception handler for parameter validations
+
 ## [0.3.0] - 2026-03-09
 
 ### Added

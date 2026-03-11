@@ -6,8 +6,8 @@ import io.github.artsobol.bookcrossing.feature.genre.dto.CreateGenreRequest;
 import io.github.artsobol.bookcrossing.feature.genre.dto.GenreResponse;
 import io.github.artsobol.bookcrossing.feature.genre.dto.UpdateGenreRequest;
 import io.github.artsobol.bookcrossing.feature.genre.entity.Genre;
-import io.github.artsobol.bookcrossing.feature.genre.repository.GenreRepository;
 import io.github.artsobol.bookcrossing.feature.genre.mapper.GenreMapper;
+import io.github.artsobol.bookcrossing.feature.genre.repository.GenreRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,7 +19,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class GenreServiceImpl implements GenreService {
+public class GenreServiceImpl implements GenreService, GenreFinder {
 
     private final GenreRepository genreRepository;
     private final GenreMapper genreMapper;
@@ -74,5 +74,13 @@ public class GenreServiceImpl implements GenreService {
         if (genreRepository.existsBySlug(slug)) {
             throw new ConflictException("genre.slug.exists");
         }
+    }
+
+    @Override
+    public Genre findById(Long id) {
+        log.debug("Get genre by id: {}", id);
+        return genreRepository.findById(id).orElseThrow(
+                () -> new NotFoundException("genre.id.not.found", id)
+        );
     }
 }

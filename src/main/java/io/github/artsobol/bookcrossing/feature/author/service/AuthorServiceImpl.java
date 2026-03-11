@@ -19,7 +19,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AuthorServiceImpl implements AuthorService {
+public class AuthorServiceImpl implements AuthorService, AuthorFinder {
 
     private final AuthorRepository authorRepository;
     private final AuthorMapper authorMapper;
@@ -94,5 +94,13 @@ public class AuthorServiceImpl implements AuthorService {
         if (authorRepository.existsBySlug(slug)) {
             throw new ConflictException("author.slug.exists");
         }
+    }
+
+    @Override
+    public Author findById(Long id) {
+        log.debug("Finding author with id: {}", id);
+        return authorRepository.findById(id).orElseThrow(
+                () -> new NotFoundException("author.not.found.id", id)
+        );
     }
 }

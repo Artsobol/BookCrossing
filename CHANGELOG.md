@@ -4,6 +4,14 @@ All notable changes to this project are documented in this file.
 
 The format is based on Keep a Changelog and this project follows Semantic Versioning.
 
+## [0.5.0] - 2026-03-10
+
+- Books feature: entity, repository. service, controller, DTOs and mapper
+- Books API endpoints: list, get own books, get by id, get all user books, create, update
+- Liquibase migration for 'books' table with foreign keys `author_id` to `authors.id`, `genre_id` to `genres.id`, '
+  user_id' to `users.id`
+- Exception handler for Forbidden exception
+
 ## [0.4.0] - 2026-03-10
 
 ### Added

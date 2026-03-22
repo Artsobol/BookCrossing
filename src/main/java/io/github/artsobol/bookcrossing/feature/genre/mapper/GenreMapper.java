@@ -1,5 +1,6 @@
 package io.github.artsobol.bookcrossing.feature.genre.mapper;
 
+import io.github.artsobol.bookcrossing.config.persistence.MapStructConfig;
 import io.github.artsobol.bookcrossing.feature.genre.dto.CreateGenreRequest;
 import io.github.artsobol.bookcrossing.feature.genre.dto.GenreResponse;
 import io.github.artsobol.bookcrossing.feature.genre.dto.UpdateGenreRequest;
@@ -10,28 +11,25 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = "spring")
+@Mapper(config = MapStructConfig.class)
 public interface GenreMapper {
 
     @BeanMapping(ignoreByDefault = true)
-    @Mapping(target = "id", source = "id")
-    @Mapping(target = "title", source = "title")
-    @Mapping(target = "slug", source = "slug")
-    @Mapping(target = "description", source = "description")
+    @Mapping(target = "id")
+    @Mapping(target = "title")
+    @Mapping(target = "slug")
+    @Mapping(target = "description")
     GenreResponse toResponse(Genre genre);
 
     @BeanMapping(ignoreByDefault = true)
-    @Mapping(target = "title", source = "title")
-    @Mapping(target = "slug", source = "slug")
-    @Mapping(target = "description", source = "description")
+    @Mapping(target = "title")
+    @Mapping(target = "slug")
+    @Mapping(target = "description")
     Genre toEntity(CreateGenreRequest response);
 
-    @BeanMapping(ignoreByDefault = true)
-    @Mapping(target = "title", source = "title",
-            nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "slug", source = "slug",
-            nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "description", source = "description",
-            nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @BeanMapping(ignoreByDefault = true, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "title")
+    @Mapping(target = "slug")
+    @Mapping(target = "description")
     void update(@MappingTarget Genre genre, UpdateGenreRequest request);
 }

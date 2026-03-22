@@ -1,5 +1,6 @@
 package io.github.artsobol.bookcrossing.feature.profile.mapper;
 
+import io.github.artsobol.bookcrossing.config.persistence.MapStructConfig;
 import io.github.artsobol.bookcrossing.feature.profile.dto.request.CreateProfileRequest;
 import io.github.artsobol.bookcrossing.feature.profile.dto.request.UpdateProfileRequest;
 import io.github.artsobol.bookcrossing.feature.profile.dto.response.ProfileResponse;
@@ -11,26 +12,26 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = "spring", uses = UserMapper.class)
+@Mapper(config = MapStructConfig.class, uses = UserMapper.class)
 public interface ProfileMapper {
 
     @BeanMapping(ignoreByDefault = true)
-    @Mapping(target = "firstName", source = "firstName")
-    @Mapping(target = "lastName", source = "lastName")
-    @Mapping(target = "bio", source = "bio")
+    @Mapping(target = "firstName")
+    @Mapping(target = "lastName")
+    @Mapping(target = "bio")
     Profile toEntity(CreateProfileRequest request);
 
     @BeanMapping(ignoreByDefault = true)
-    @Mapping(target = "id", source = "id")
-    @Mapping(target = "firstName", source = "firstName")
-    @Mapping(target = "lastName", source = "lastName")
-    @Mapping(target = "bio", source = "bio")
-    @Mapping(target = "user", source = "user")
+    @Mapping(target = "id")
+    @Mapping(target = "firstName")
+    @Mapping(target = "lastName")
+    @Mapping(target = "bio")
+    @Mapping(target = "user")
     ProfileResponse toResponse(Profile profile);
 
-    @BeanMapping(ignoreByDefault = true)
-    @Mapping(target = "firstName", source = "firstName", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "lastName", source = "lastName", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "bio", source = "bio", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @BeanMapping(ignoreByDefault = true, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "firstName")
+    @Mapping(target = "lastName")
+    @Mapping(target = "bio")
     void toUpdate(@MappingTarget Profile profile, UpdateProfileRequest request);
 }

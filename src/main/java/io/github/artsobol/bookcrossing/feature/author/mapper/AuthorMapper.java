@@ -1,5 +1,6 @@
 package io.github.artsobol.bookcrossing.feature.author.mapper;
 
+import io.github.artsobol.bookcrossing.config.persistence.MapStructConfig;
 import io.github.artsobol.bookcrossing.feature.author.dto.AuthorResponse;
 import io.github.artsobol.bookcrossing.feature.author.dto.CreateAuthorRequest;
 import io.github.artsobol.bookcrossing.feature.author.dto.UpdateAuthorRequest;
@@ -10,24 +11,22 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = "spring")
+@Mapper(config = MapStructConfig.class)
 public interface AuthorMapper {
 
     @BeanMapping(ignoreByDefault = true)
-    @Mapping(target = "id", source = "id")
-    @Mapping(target = "name", source = "name")
-    @Mapping(target = "slug", source = "slug")
+    @Mapping(target = "id")
+    @Mapping(target = "name")
+    @Mapping(target = "slug")
     AuthorResponse toResponse(Author author);
 
     @BeanMapping(ignoreByDefault = true)
-    @Mapping(target = "name", source = "name")
-    @Mapping(target = "slug", source = "slug")
+    @Mapping(target = "name")
+    @Mapping(target = "slug")
     Author toEntity(CreateAuthorRequest request);
 
-    @BeanMapping(ignoreByDefault = true)
-    @Mapping(target = "name", source = "name",
-            nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "slug", source = "slug",
-            nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @BeanMapping(ignoreByDefault = true, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "name")
+    @Mapping(target = "slug")
     void update(@MappingTarget Author author, UpdateAuthorRequest request);
 }

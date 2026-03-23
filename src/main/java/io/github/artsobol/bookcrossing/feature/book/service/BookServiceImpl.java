@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -37,19 +38,15 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookResponse create(UUID userId, CreateBookRequest request) {
         log.info("Start creating book");
-        Book entity = bookMapper.toEntity(request);
         User user = userFinder.findById(userId);
-        entity.setUser(user);
-        if (request.authorId() != null) {
-            entity.setAuthor(authorFinder.findById(request.authorId()));
-            log.debug("Author with id: {} successfully added to book", request.authorId());
-        }
-        if (request.genreId() != null) {
-            entity.setGenre(genreFinder.findById(request.genreId()));
-            log.debug("Genre with id: {} successfully added to book", request.genreId());
-        }
+
+        Book entity = Book.create(request.title(), request.description(), user);
+        updateAuthor(entity, request.authorId());
+        updateGenre(entity, request.genreId());
+
         Book saved = bookRepository.save(entity);
         log.info("Book successfully created with id {}", saved.getId());
+
         return bookMapper.toResponse(saved);
     }
 
@@ -81,18 +78,12 @@ public class BookServiceImpl implements BookService {
     public BookResponse update(UUID userId, Long id, UpdateBookRequest request) {
         log.info("Start updating book with id: {}", id);
         ensureCorrectOwner(id, userId);
+
         Book entity = findBookById(id);
-        bookMapper.update(entity, request);
-        if (request.authorId() != null && !entity.getAuthor().getId().equals(request.authorId())) {
-            Long oldId = entity.getAuthor().getId();
-            entity.setAuthor(authorFinder.findById(request.authorId()));
-            log.debug("Book with id: {} changed author with id: {} to id: {}", id, oldId, request.authorId());
-        }
-        if (request.genreId() != null && !entity.getGenre().getId().equals(request.genreId())) {
-            Long oldId = entity.getGenre().getId();
-            entity.setGenre(genreFinder.findById(request.genreId()));
-            log.debug("Book with id: {} changed genre with id: {} to id: {}", id, oldId, request.genreId());
-        }
+        updateBookDetails(entity, request.title(), request.description());
+        updateAuthor(entity, request.authorId());
+        updateGenre(entity, request.genreId());
+
         log.info("Book with id: {} successfully update", id);
         return bookMapper.toResponse(entity);
     }
@@ -111,4 +102,42 @@ public class BookServiceImpl implements BookService {
             throw new ForbiddenException("book.wrong.owner", bookId, userId);
         }
     }
+
+    private void updateGenre(Book entity, Long genreId) {
+        if (genreId == null) {
+            return;
+        }
+
+        Long currentGenreId = entity.getGenre() == null ? null : entity.getGenre().getId();
+        if (Objects.equals(currentGenreId, genreId)) {
+            return;
+        }
+
+        entity.changeGenre(genreFinder.findById(genreId));
+        log.debug("Book with id: {} changed genre with id: {} to id: {}", entity.getId(), currentGenreId, genreId);
+    }
+
+    private void updateAuthor(Book entity, Long authorId) {
+        if (authorId == null) {
+            return;
+        }
+
+        Long currentAuthorId = entity.getAuthor() == null ? null : entity.getAuthor().getId();
+        if (Objects.equals(currentAuthorId, authorId)) {
+            return;
+        }
+
+        entity.changeAuthor(authorFinder.findById(authorId));
+        log.debug("Book with id: {} changed author with id: {} to id: {}", entity.getId(), currentAuthorId, authorId);
+    }
+
+    private void updateBookDetails(Book entity, String title, String description) {
+        if (title != null) {
+            entity.changeTitle(title);
+        }
+        if (description != null) {
+            entity.changeDescription(description);
+        }
+    }
+
 }

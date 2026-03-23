@@ -44,7 +44,8 @@ public class GenreServiceImpl implements GenreService, GenreFinder {
     public GenreResponse create(CreateGenreRequest request) {
         log.info("Creating genre with slug: {}", request.slug());
         ensureGenreNotExists(request.slug());
-        Genre entity = genreMapper.toEntity(request);
+
+        Genre entity = Genre.create(request.title(), request.description(), request.slug());
         Genre saved = genreRepository.save(entity);
         log.info("Genre created with id: {} and slug: {}", saved.getId(), saved.getSlug());
         return genreMapper.toResponse(saved);
@@ -55,13 +56,31 @@ public class GenreServiceImpl implements GenreService, GenreFinder {
     public GenreResponse update(String slug, UpdateGenreRequest request) {
         log.info("Updating genre with slug: {}", slug);
         Genre entity = getGenreBySlug(slug);
-        if (request.slug() != null && !request.slug().equals(entity.getSlug())) {
-            ensureGenreNotExists(request.slug());
-        }
-        genreMapper.update(entity, request);
+        String currentSlug = request.slug();
+
+        updateGenreSlug(request, currentSlug, entity);
+        updateGenreDetails(entity, request.title(), request.description());
         Genre saved = genreRepository.save(entity);
+
         log.info("Genre updated with id: {} and slug: {}", saved.getId(), saved.getSlug());
         return genreMapper.toResponse(saved);
+    }
+
+    private void updateGenreSlug(UpdateGenreRequest request, String currentSlug, Genre entity) {
+        if (currentSlug != null && !currentSlug.equals(entity.getSlug())) {
+            ensureGenreNotExists(request.slug());
+            entity.updateSlug(request.slug());
+            log.debug("Genre with id: {} changed slug from: {} to: {}", entity.getId(), currentSlug, entity.getSlug());
+        }
+    }
+
+    private void updateGenreDetails(Genre entity, String title, String description) {
+        if (title != null) {
+            entity.updateTitle(title);
+        }
+        if (description != null) {
+            entity.updateDescription(description);
+        }
     }
 
     private Genre getGenreBySlug(String slug) {

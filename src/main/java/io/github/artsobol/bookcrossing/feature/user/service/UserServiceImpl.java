@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Set;
 import java.util.UUID;
 
 @Slf4j
@@ -29,16 +28,12 @@ public class UserServiceImpl implements UserService, UserFinder {
         ensureUniqueUsername(request.username());
         ensureUniqueEmail(request.email());
 
-        User user = User.builder()
-                .username(request.username())
-                .email(request.email())
-                .passwordHash(request.passwordHash())
-                .roles(Set.of(roleService.findByName("USER")))
-                .build();
-        userRepository.save(user);
+        User entity = User.create(request.username(), request.email(), request.passwordHash());
+        entity.addRole(roleService.findByName("USER"));
+        userRepository.save(entity);
 
-        log.info("User created with username: {}", user.getUsername());
-        return user;
+        log.info("User created with username: {}", entity.getUsername());
+        return entity;
     }
 
     @Override

@@ -38,7 +38,7 @@ public class AuthorServiceImpl implements AuthorService, AuthorFinder {
     public AuthorResponse create(CreateAuthorRequest request) {
         log.info("Creating author with slug: {}", request.slug());
         ensureAuthorNotExists(request.slug());
-        Author entity = authorMapper.toEntity(request);
+        Author entity = Author.create(request.name(), request.slug());
         Author saved = authorRepository.save(entity);
         log.info("Author created with id: {} and slug: {}", saved.getId(), saved.getSlug());
         return authorMapper.toResponse(saved);
@@ -55,6 +55,7 @@ public class AuthorServiceImpl implements AuthorService, AuthorFinder {
     }
 
     @Override
+    @Transactional(readOnly = true)
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public AuthorResponse findByName(String name) {
         log.debug("Finding author by name: {}", name);
@@ -64,17 +65,30 @@ public class AuthorServiceImpl implements AuthorService, AuthorFinder {
     }
 
     @Override
+    @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     public AuthorResponse update(String slug, UpdateAuthorRequest request) {
         log.info("Updating author with slug: {}", slug);
-        if (request.slug() != null && !request.slug().equals(slug)) {
-            ensureAuthorNotExists(request.slug());
-        }
+
         Author entity = getAuthorBySlug(slug);
-        authorMapper.update(entity, request);
-        Author saved = authorRepository.save(entity);
-        log.info("Author updated with id: {} and slug: {}", saved.getId(), saved.getSlug());
-        return authorMapper.toResponse(saved);
+        updateSlug(entity, request.slug());
+        updateName(entity, request.name());
+
+        log.info("Author updated with id: {} and slug: {}", entity.getId(), entity.getSlug());
+        return authorMapper.toResponse(entity);
+    }
+
+    private void updateName(Author entity, String newName) {
+        if (newName != null) {
+            entity.updateName(newName);
+        }
+    }
+
+    private void updateSlug(Author entity, String newSlug) {
+        if (newSlug != null && !entity.getSlug().equals(newSlug)) {
+            ensureAuthorNotExists(newSlug);
+            entity.updateSlug(newSlug);
+        }
     }
 
     private Author getAuthorByName(String name) {

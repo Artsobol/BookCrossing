@@ -1,5 +1,6 @@
 package io.github.artsobol.bookcrossing.feature.refreshtoken.entity;
 
+import io.github.artsobol.bookcrossing.feature.refreshtoken.dto.request.CreateRefreshTokenRequest;
 import io.github.artsobol.bookcrossing.feature.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,46 +18,47 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-@Getter
-@Setter
-@Builder
 @Table(name = "refresh_tokens", indexes = {
         @Index(name = "idx_refresh_token_user_id", columnList = "user_id"),
         @Index(name = "idx_refresh_token_session_id", columnList = "session_id"),
         @Index(name = "idx_refresh_token_token_hash", columnList = "token_hash")
 })
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 public class RefreshToken {
 
     @Id
+    @Getter
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false, unique = true)
     private Long id;
 
-    @Column(name = "token_hash", nullable = false, unique = true) private String tokenHash;
+    @Getter
+    @Column(name = "token_hash", nullable = false, unique = true)
+    private String tokenHash;
 
+    @Getter
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_refresh_token_user_id"))
     private User user;
 
+    @Getter
     @Column(name = "expires_at", nullable = false)
     private Instant expiresAt;
 
+    @Getter
     @Column(name = "revoked_at")
     private Instant revokedAt;
 
@@ -71,6 +73,7 @@ public class RefreshToken {
     @OneToOne(mappedBy = "replaceBy")
     private RefreshToken replacedToken;
 
+    @Getter
     @Column(name = "session_id", nullable = false)
     private UUID sessionId;
 
@@ -82,6 +85,7 @@ public class RefreshToken {
     @Column(name = "user_agent", nullable = false)
     private String userAgent;
 
+    @Getter
     @Column(name = "device_name")
     private String deviceName;
 
@@ -92,5 +96,37 @@ public class RefreshToken {
     @LastModifiedDate
     @Column(name = "last_used_at", nullable = false)
     private Instant lastUsedAt;
+
+    public static RefreshToken create(CreateRefreshTokenRequest request, String tokenHash, Instant expiresAt) {
+        RefreshToken entity = new RefreshToken();
+        entity.tokenHash = Objects.requireNonNull(tokenHash, "Token hash is null");
+        entity.expiresAt = Objects.requireNonNull(expiresAt, "ExpiresAt is null");
+        entity.user = request.user();
+        entity.sessionId = request.sessionId();
+        entity.ipAddress = request.ipAddress();
+        entity.userAgent = request.userAgent();
+        entity.deviceName = request.deviceName();
+
+        return entity;
+    }
+
+    public boolean isRevoked() {
+        return revokedAt != null;
+    }
+
+    public boolean isExpiredAt(Instant now) {
+        return expiresAt.isBefore(now);
+    }
+
+    public void revoke(Instant now, RevokedReason reason) {
+        this.revokedAt = now;
+        this.revokedReason = reason;
+    }
+
+    public void replaceWith(RefreshToken newToken, Instant now) {
+        revoke(now, RevokedReason.ROTATED);
+        this.replaceBy = newToken;
+        newToken.replacedToken = this;
+    }
 
 }

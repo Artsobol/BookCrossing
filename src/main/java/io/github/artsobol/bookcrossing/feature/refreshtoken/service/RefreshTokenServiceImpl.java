@@ -1,12 +1,12 @@
 package io.github.artsobol.bookcrossing.feature.refreshtoken.service;
 
+import io.github.artsobol.bookcrossing.config.properties.security.SessionProperties;
 import io.github.artsobol.bookcrossing.exception.security.AuthenticationException;
 import io.github.artsobol.bookcrossing.feature.refreshtoken.dto.request.CreateRefreshTokenRequest;
 import io.github.artsobol.bookcrossing.feature.refreshtoken.dto.request.RotateRefreshTokenRequest;
 import io.github.artsobol.bookcrossing.feature.refreshtoken.dto.response.CreatedRefreshToken;
 import io.github.artsobol.bookcrossing.feature.refreshtoken.dto.response.RefreshTokenRotationResult;
 import io.github.artsobol.bookcrossing.feature.refreshtoken.entity.RefreshToken;
-import io.github.artsobol.bookcrossing.config.properties.security.SessionProperties;
 import io.github.artsobol.bookcrossing.feature.refreshtoken.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,16 +48,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         RefreshToken token = refreshTokenRepository.findByTokenHash(hash)
                 .orElseThrow(() -> new AuthenticationException("auth.refresh.invalid"));
 
-        if (token.getExpiresAt().isBefore(Instant.now())) {
+        if (token.isExpiredAt(Instant.now())) {
             throw new AuthenticationException("auth.refresh.expired");
         }
 
-        if (token.getRevokedAt() != null) {
+        if (token.isRevoked()) {
             throw new AuthenticationException("auth.refresh.revoked");
         }
-
-        Instant now = Instant.now();
-        token.setRevokedAt(now);
 
         CreateRefreshTokenRequest refreshTokenRequest = new CreateRefreshTokenRequest(
                 token.getUser(),
@@ -69,10 +66,9 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         CreatedRefreshToken encoded = encoder.create(refreshTokenRequest);
         RefreshToken newToken = encoded.refreshToken();
 
-        refreshTokenRepository.save(newToken);
+        token.replaceWith(newToken, Instant.now());
 
-        token.setReplaceBy(newToken);
-        newToken.setReplacedToken(token);
+        refreshTokenRepository.save(newToken);
 
         log.info("Refresh token rotated");
         return new RefreshTokenRotationResult(token.getUser(), encoded.rawToken());

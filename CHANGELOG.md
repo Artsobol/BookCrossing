@@ -4,6 +4,16 @@ All notable changes to this project are documented in this file.
 
 The format is based on Keep a Changelog and this project follows Semantic Versioning.
 
+## [0.5.1] - 2026-03-25
+
+### Changed
+
+- Refactored entity creation and state changes to use explicit factory and domain methods instead of public setters and
+  builders
+- Updated service layer to work with entity behavior for refresh token lifecycle and other domain operations
+- Adapted mappers to the new entity initialization approach
+- Improved domain model consistency by reducing uncontrolled field mutation
+
 ## [0.5.0] - 2026-03-10
 
 - Books feature: entity, repository. service, controller, DTOs and mapper

@@ -52,10 +52,10 @@ public class ProfileServiceImpl implements ProfileService {
         log.info("Creating profile for user");
         ensureProfileNotExists(userId);
 
-        Profile entity = profileMapper.toEntity(request);
         User user = userFinder.findById(userId);
+        Profile entity = Profile.create(user, request.firstName(), request.lastName());
+        entity.updateBio(request.bio());
 
-        entity.setUser(user);
         profileRepository.save(entity);
         log.info("Profile created for user: {}", user.getUsername());
 
@@ -68,7 +68,7 @@ public class ProfileServiceImpl implements ProfileService {
     public ProfileResponse updateProfile(UUID userId, UpdateProfileRequest request) {
         log.info("Updating profile for user");
         Profile entity = getProfileByUserId(userFinder.findById(userId));
-        profileMapper.toUpdate(entity, request);
+        updateProfileInformation(entity, request);
         profileRepository.save(entity);
         log.info("Profile updated for user");
 
@@ -85,6 +85,43 @@ public class ProfileServiceImpl implements ProfileService {
         log.debug("Checking if profile exists for user");
         if (profileRepository.existsByUserId(userId)) {
             throw new ConflictException("profile.exists");
+        }
+    }
+
+    private void updateProfileInformation(Profile entity, UpdateProfileRequest request) {
+        updateFirstName(entity, request.firstName());
+        updateLastName(entity, request.lastName());
+        updateBio(entity, request.bio());
+    }
+
+    private void updateFirstName(Profile entity, String firstName) {
+        if (firstName != null && !firstName.isBlank()) {
+            log.debug(
+                    "Update firstname from: {} to: {} for user id: {}",
+                    entity.getFirstName(),
+                    firstName,
+                    entity.getId()
+            );
+            entity.updateFirstName(firstName);
+        }
+    }
+
+    private void updateLastName(Profile entity, String lastName) {
+        if (lastName != null && !lastName.isBlank()) {
+            log.debug(
+                    "Update lastname from: {} to: {} for user id: {}",
+                    entity.getLastName(),
+                    lastName,
+                    entity.getId()
+            );
+            entity.updateLastName(lastName);
+        }
+    }
+
+    private void updateBio(Profile entity, String bio) {
+        if (bio != null) {
+            log.debug("Update bio for user id: {}", entity.getId());
+            entity.updateBio(bio);
         }
     }
 }

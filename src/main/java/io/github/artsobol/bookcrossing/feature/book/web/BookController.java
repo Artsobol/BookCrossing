@@ -77,7 +77,7 @@ public class BookController {
     public ResponseEntity<BookResponse> getAllMyBooks(
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            UpdateBookRequest request
+            @RequestBody @Valid UpdateBookRequest request
     ) {
         log.debug("Received request update book with id: {}", id);
         BookResponse response = bookService.update(userPrincipal.userId(), id, request);

@@ -1,6 +1,5 @@
 package io.github.artsobol.bookcrossing.feature.auth.service;
 
-import io.github.artsobol.bookcrossing.exception.http.ConflictException;
 import io.github.artsobol.bookcrossing.feature.auth.dto.request.RegistrationRequest;
 import io.github.artsobol.bookcrossing.feature.auth.dto.request.SessionMetadata;
 import io.github.artsobol.bookcrossing.feature.auth.dto.response.AuthResponse;
@@ -27,7 +26,6 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     public AuthResponse register(RegistrationRequest request, SessionMetadata meta) {
         log.info("Registration started for username: {}", request.username());
-        ensurePasswordsMatch(request.password(), request.confirmPassword());
 
         CreateUserRequest userRequest = new CreateUserRequest(
                 request.username(),
@@ -50,12 +48,5 @@ public class RegistrationServiceImpl implements RegistrationService {
         log.info("Registration finished for username: {}", request.username());
 
         return response;
-    }
-
-    private void ensurePasswordsMatch(String password, String passwordConfirmation) {
-        log.debug("Checking if passwords match");
-        if (!password.equals(passwordConfirmation)) {
-            throw new ConflictException("auth.password.mismatch");
-        }
     }
 }
